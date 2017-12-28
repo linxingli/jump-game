@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        body {
+            background-color: #000;
+        }
+        .box {
+            width: 800px;
+            height: 400px;
+            background-color: #cccccc;
+            margin:100px auto;
+        }
+        .night-box {
+            width: 800px;
+            height: 400px;
+            background-color: #000;
+            margin:100px auto;
+        }
+        .content {
+            width: 800px;
+            height: 350px;
+            border-bottom: 1px solid #000000;
+            position: relative;
+            top: 0;
+            left: 0;
+        }
+        .night-content {
+            width: 800px;
+            height: 350px;
+            border-bottom: 1px solid #000;
+            background-color: #000;
+            position: relative;
+            top: 0;
+            left: 0;
+        }
+        .person {
+            width: 50px;
+            height: 100px;
+            background-color: #000;
+            position: absolute;
+            bottom: 0;
+            left: 50px;
+        }
+        .night-person {
+            background-color: #ccc;
+            width: 50px;
+            height: 100px;
+            position: absolute;
+            bottom: 0;
+            left: 50px;
+
+        }
+        .Scoreboard {
+            width: 300px;
+            height: 30px;
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+        .night-Scoreboard {
+            width: 300px;
+            height: 30px;
+            position: absolute;
+            right: 0;
+            top: 0;
+            color: #fff3a5;
+        }
+
+        #videoGameOver,#videoJump {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="box" id="box">
+    <div class="content" id="content">
+        <div class="Scoreboard" id="Scoreboard">
+            历史最高分:<span id="maxScore"></span>&nbsp;&nbsp;&nbsp;&nbsp;
+            本次得分:<span id="currentScore">0</span>
+        </div>
+        <div class="person" id="person"></div>
+    </div>
+</div>
+<!--添加音频-->
+    <video id="videoJump" controls="controls">
+        <source src="./audio/jump.mp3" type="video/mp4">
+    </video>
+    <video id="videoGameOver" controls="controls">
+        <source src="./audio/gameover.mp3" type="video/mp4">
+    </video>
+</body>
+<script src="jQuery版本/jquery-1.12.4.js"></script>
+<script src="common.js"></script>
+<script>
+    var scoreArr = [];
+
+    //获取元素
+    var content = document.getElementById("content");
+    var personBox = document.getElementById("person");
+    //----------------------------------游戏对象跳跃部分-----------------------------------------
+    //注册空格按键按下事件
+    //设置节流阀,作用:以确保动画能完整的执行一遍,不受连续触发的影响
+    var flag = true;
+    $(document).on('keydown',function (e) {
+        var keyCode = e.keyCode;
+        /*判断是否按下空格键*/
+        if(keyCode == 32){
+            var music = document.getElementById("videoJump");     // 获得音乐对象
+            music.play();                                        // 开始播放
+            if(!flag) return false;  //去除节流阀有惊喜
+            flag = false;
+            //触发跳跃
+            animateV(personBox,160, function () {
+                animateV(personBox,250, function () {
+                    flag = true;
+                })
+            });
+        }
+    });
+    //------------------------------障碍物生成部分------------------------------------------
+    //设置定时器,自动生成障碍物
+    var timerID = null;
+    var i = 0;
+    var spanArr = [];
+    var value =1;
+
+    //生成障碍物的时间间隔不能固定死,那就随机生成间隔时间,如:1000ms-3000ms
+    var timeout=Math.round(Math.random()*2000+1300);
+    clearTimeout(timerID);
+    timerID=setTimeout(function timeoutFun(){
+        //生成障碍物
+        var spanBox = document.createElement("span");
+        spanBox.setAttribute('id',""+i);
+        spanBox.style.position = 'absolute';
+        spanBox.style.left = '800px';
+        spanBox.style.bottom = '0px';
+        spanBox.style.width = '30px';
+        spanBox.style.height = '30px';
+        spanBox.style.backgroundColor = this.bgc || 'blue';
+        //将生成的障碍物追加到content中
+        document.getElementById("content").appendChild(spanBox);
+        //同时将生成的障碍物添加到spanArr数组
+        spanArr[spanArr.length] = spanBox;
+        //给障碍物设置动画
+        animate(spanBox,-30,function(){
+            //动画执行完毕之后执行回调函数,移除元素
+            content.removeChild(document.getElementById(spanBox.getAttribute('id')));
+            //对应的,删除数组最前面一项
+            spanArr.shift();
+
+            //为增加游戏难度,设置阶段加速
+            if(currentScore > 100 && currentScore < 200) {
+                //随着时间的推移,场景变为黑夜
+                document.querySelector('#person').setAttribute("class",'night-person');
+                document.querySelector('#content').setAttribute("class",'night-content');
+                document.querySelector('#Scoreboard').setAttribute("class",'night-Scoreboard');
+                this.bgc = "#cccccc";
+                value =2;
+            }else if(currentScore >= 200 && currentScore < 500 ){
+                //随着时间的推移,场景变为白天
+                document.querySelector('#person').setAttribute("class",'person');
+                document.querySelector('#content').setAttribute("class",'content');
+                document.querySelector('#Scoreboard').setAttribute("class",'Scoreboard');
+                this.bgc = "blue";
+                value =3;
+            }else if(currentScore >= 500 && currentScore < 700){
+                //随着时间的推移,场景变为黑夜
+                document.querySelector('#person').setAttribute("class",'night-person');
+                document.querySelector('#content').setAttribute("class",'night-content');
+                document.querySelector('#Scoreboard').setAttribute("class",'night-Scoreboard');
+                this.bgc = "#cccccc";
+                value =4;
+            }else if(currentScore >= 700){
+                //随着时间的推移,场景变为白天
+                document.querySelector('#person').setAttribute("class",'person');
+                document.querySelector('#content').setAttribute("class",'content');
+                document.querySelector('#Scoreboard').setAttribute("class",'Scoreboard');
+                this.bgc = "blue";
+                value =5;
+            }
+        });
+
+        i++;
+        //随机生成计时器间隔时间
+        timeout=Math.round(Math.random()*2000+1300);
+        //执行完毕后继续调用setTimeout,就能源源不断(随机时间)生成障碍物
+        timerID=setTimeout(timeoutFun,timeout);
+    },timeout);
+
+    //-----------------------------判断游是否撞到障碍物-------------------------------------
+    //
+    var timerID1 = setInterval(function () {
+        //获取跳跃小人的top值
+        var personTop = personBox.offsetTop;
+        //获取走在最前面的障碍物left值,所以取数组首项
+        var spanLeft =spanArr[0].offsetLeft;
+        //碰撞条件分析:person的left是固定的,top变化
+        //           span的top是固定的,left变化,所以是否撞到障碍物只需判断:
+        //           span在left(20-100)时,person的top是否大于220
+        if(spanLeft < 98 && spanLeft > 22 && personTop > 222){
+            var music1 = document.getElementById("videoGameOver");// 获得音乐对象
+            music1.play();                                        // 开始播放
+            clearInterval(timerID);
+            clearInterval(timerID1);
+            clearInterval(timerID2);
+
+            //把每局游戏结束后的分数都存进数组scoreArr
+            scoreArr[scoreArr.length] = currentScore;
+            //将数组存入cookie   由于cookie只能存字符串,所以要将数组转先转为字符串
+            // document.cookie = scoreArr.join("-");
+            
+            // 将scoreArr以"-"分开转为字符串,再存入sessionStorage
+            window.sessionStorage.setItem("score",scoreArr.join("-"));
+
+            if(confirm("游戏结束,再来一局?")){
+                location.reload();//重载页面
+            }
+        }
+    },1);
+    //--------------------------------游戏积分模块---------------------------------------------
+    //再写一个计时器,记录分数
+    var currentScore = 0;
+    var maxScore = 0;
+    var timerID2 = setInterval(function () {
+        currentScore++;
+        document.querySelector('#currentScore').innerHTML = currentScore;
+    },100);
+
+    //调用cookie,获取已经存在cookie里面的字符串
+    // var result = get_cookie();
+    //调用sessionStorage
+    var result = window.sessionStorage.getItem("score");
+    //将字符串转为数组
+    var scoreArr = result.split("-");
+    //求数组最大值，使用apply实现
+    maxScore = Math.max.apply(Math, scoreArr);
+    document.querySelector('#maxScore').innerHTML = maxScore;
+
+    //在js中获取cookie的方法
+    /*function get_cookie() {
+        var search = ""//查询检索的值
+        var returnvalue = "";//返回值
+        if (document.cookie.length > 0) {
+            sd = document.cookie.indexOf(search);
+            if (sd!= -1) {
+                sd += search.length;
+                end = document.cookie.indexOf(";", sd);
+                if (end == -1)
+                    end = document.cookie.length;
+                //unescape() 函数可对通过 escape() 编码的字符串进行解码。
+                returnvalue=unescape(document.cookie.substring(sd, end))
+            }
+        }
+        return returnvalue;
+    }*/
+
+</script>
+</html>
