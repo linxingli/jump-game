@@ -2,6 +2,8 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
+    <!-- <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=0"> -->
+    <meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=0,minimum-scale=0.6" />
     <title></title>
     <style>
         *{
@@ -96,6 +98,7 @@
         <source src="./audio/gameover.mp3" type="video/mp4">
     </video>
 </body>
+<script src="https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
 <script src="jQuery版本/jquery-1.12.4.js"></script>
 <script src="common.js"></script>
 <script>
@@ -108,21 +111,28 @@
     //注册空格按键按下事件
     //设置节流阀,作用:以确保动画能完整的执行一遍,不受连续触发的影响
     var flag = true;
+    function jump_self(){
+        var music = document.getElementById("videoJump");     // 获得音乐对象
+        music.play();                                        // 开始播放
+        if(!flag) return false;  //去除节流阀有惊喜
+        flag = false;
+        //触发跳跃
+        animateV(personBox,160, function () {
+            animateV(personBox,250, function () {
+                flag = true;
+            })
+        });
+    }
     $(document).on('keydown',function (e) {
         var keyCode = e.keyCode;
         /*判断是否按下空格键*/
         if(keyCode == 32){
-            var music = document.getElementById("videoJump");     // 获得音乐对象
-            music.play();                                        // 开始播放
-            if(!flag) return false;  //去除节流阀有惊喜
-            flag = false;
-            //触发跳跃
-            animateV(personBox,160, function () {
-                animateV(personBox,250, function () {
-                    flag = true;
-                })
-            });
+            jump_self();
         }
+    });
+    // 手机触摸跳跃
+    $(document).on("click",function(){
+        jump_self();
     });
     //------------------------------障碍物生成部分------------------------------------------
     //设置定时器,自动生成障碍物
