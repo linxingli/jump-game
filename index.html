@@ -108,6 +108,8 @@
     var content = document.getElementById("content");
     var personBox = document.getElementById("person");
     //----------------------------------游戏对象跳跃部分-----------------------------------------
+    // 初始化fastClick
+    FastClick.attach(document.body);
     //注册空格按键按下事件
     //设置节流阀,作用:以确保动画能完整的执行一遍,不受连续触发的影响
     var flag = true;
