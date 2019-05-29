@@ -10,6 +10,10 @@
             padding: 0;
             margin: 0;
         }
+        #tip {
+            text-align: center;
+            line-height: 50px;
+        }
         body {
             background-color: #000;
         }
@@ -90,6 +94,7 @@
         </div>
         <div class="person" id="person"></div>
     </div>
+    <p id="tip">》》点击屏幕或者空格键起跳》》</p>
 </div>
 <!--添加音频-->
     <audio id="videoJump" controls="controls">
@@ -104,6 +109,11 @@
 <script src="common.js"></script>
 <script>
     var scoreArr = [];
+
+    setTimeout(() => {
+        let box = document.querySelector('#box')
+        box.removeChild(box.querySelector('#tip'))
+    }, 5000);
 
     //获取元素
     var content = document.getElementById("content");
