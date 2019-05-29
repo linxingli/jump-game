@@ -120,7 +120,7 @@
         if(!flag) return false;  //去除节流阀有惊喜
         flag = false;
         //触发跳跃
-        animateV(personBox,160, function () {
+        animateV(personBox,150, function () {
             animateV(personBox,250, function () {
                 flag = true;
             })
@@ -246,8 +246,6 @@
         document.querySelector('#currentScore').innerHTML = currentScore;
     },100);
 
-    //调用cookie,获取已经存在cookie里面的字符串
-    // var result = get_cookie();
     //调用sessionStorage
     var result = window.sessionStorage.getItem("score");
     //将字符串转为数组
@@ -255,24 +253,6 @@
     //求数组最大值，使用apply实现
     maxScore = Math.max.apply(Math, scoreArr);
     document.querySelector('#maxScore').innerHTML = maxScore;
-
-    //在js中获取cookie的方法
-    /*function get_cookie() {
-        var search = ""//查询检索的值
-        var returnvalue = "";//返回值
-        if (document.cookie.length > 0) {
-            sd = document.cookie.indexOf(search);
-            if (sd!= -1) {
-                sd += search.length;
-                end = document.cookie.indexOf(";", sd);
-                if (end == -1)
-                    end = document.cookie.length;
-                //unescape() 函数可对通过 escape() 编码的字符串进行解码。
-                returnvalue=unescape(document.cookie.substring(sd, end))
-            }
-        }
-        return returnvalue;
-    }*/
 
 </script>
 </html>
